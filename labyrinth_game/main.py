@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 from constants import ROOMS
-from player_actions import get_input, show_inventory
-from utils import describe_current_room
-
+from player_actions import show_inventory, move_player, take_item, use_item  
+from utils import describe_current_room, solve_puzzle, attempt_open_treasure, show_help, get_input  
 game_state = {
     'player_inventory': [],
     'current_room': 'entrance',
@@ -11,56 +10,54 @@ game_state = {
 }
 
 def process_command(game_state, command):
-    parts = command.lower().split()
+    parts = command.lower().strip().split()
     if not parts:
         return
     
     action = parts[0]
     arg = parts[1] if len(parts) > 1 else None
     
+    
+    if action in ['north', 'south', 'east', 'west']:
+        move_player(game_state, action)
+        return
+    
     match action:
         case "go":
-            if arg:
-                from player_actions import move_player
+            if arg and arg in ['north', 'south', 'east', 'west']:
                 move_player(game_state, arg)
             else:
                 print("Укажите направление: north, south, east, west.")
         case "look":
-            from utils import describe_current_room
             describe_current_room(game_state)
         case "take":
-            if arg == "treasure_chest" and game_state['current_room'] == 'treasure_room':
-                from utils import attempt_open_treasure  
-                print("Вы не можете поднять сундук, он слишком тяжелый.")
-            elif arg:
-                from player_actions import take_item
-                take_item(game_state, arg)
+            if arg:
+                if arg == "treasure_chest" and game_state['current_room'] == 'treasure_room':
+                    print("Вы не можете поднять сундук, он слишком тяжелый.")
+                else:
+                    take_item(game_state, arg)
             else:
                 print("Укажите предмет.")
-        case "inventory":
-            from player_actions import show_inventory
-            show_inventory(game_state)
         case "use":
             if arg:
-                from player_actions import use_item
                 use_item(game_state, arg)
             else:
                 print("Укажите предмет.")
+        case "inventory":
+            show_inventory(game_state)
         case "solve":
-            from utils import solve_puzzle
-            solve_puzzle(game_state)
-            # Для treasure_room
-            if game_state['current_room'] == 'treasure_room':
-                from utils import attempt_open_treasure
+            current = game_state['current_room']
+            if current == 'treasure_room':
                 attempt_open_treasure(game_state)
+            else:
+                solve_puzzle(game_state)
         case "help":
-            from utils import show_help
             show_help()
         case "quit" | "exit":
+            print("Спасибо за игру!")
             game_state['game_over'] = True
         case _:
-            print("Неизвестная команда.")
-
+            print("Неизвестная команда. Введите 'help' для списка команд.")
 def main():
     print("Добро пожаловать в Лабиринт сокровищ!")
     describe_current_room(game_state)
