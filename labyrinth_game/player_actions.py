@@ -2,6 +2,7 @@
 
 from constants import ROOMS
 
+
 def show_inventory(game_state):
     inventory = game_state['player_inventory']
     if inventory:

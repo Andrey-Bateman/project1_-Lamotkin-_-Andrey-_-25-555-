@@ -1,7 +1,9 @@
 # labyrinth_game/utils.py
-from constants import COMMANDS
-from constants import ROOMS
-import math  
+import math
+
+from constants import COMMANDS, ROOMS
+
+
 def describe_current_room(game_state):
     current_room = game_state['current_room']
     room_data = ROOMS[current_room]
